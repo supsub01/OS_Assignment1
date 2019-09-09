@@ -5,8 +5,9 @@
 int main(int n, char** argv) 
 { 
     int i=0;
-    printf("n is %d",n);
-    for(i=1;i<n-1;i++) // loop will run n times 
+    int n_files=atoi(argv[1]);
+    //printf("n_files is %d",n_files);
+    for(i=2;i<n_files+2;i++) // loop will run n times  
     { 
         if(fork() == 0) 
         {   //write the file analysis code here
@@ -14,30 +15,33 @@ int main(int n, char** argv)
             FILE *file_write;
             char filename[15];
             char ch;
-            int freq[26];
+            int freq[26]={0};
 
-             //filename=argv[i];
-             file_write=fopen(argv[n],"w");
-             fptr = fopen(argv[i], "r");
-             printf("INDEX i=%d \n",i);
-             if (fptr == NULL)
+            //Opening input and output files
+            if(i==2) file_write=fopen(argv[n-1],"w");
+            else file_write=fopen(argv[n-1],"a");
+
+            printf("Opening %s .... \n",argv[i]);
+            fptr = fopen(argv[i], "r");
+            
+            if (fptr == NULL)
              {
-                printf("Cannot open reading file at index %d \n",i);
-                printf("Filename=%s",argv[i]);
+                printf("Cannot open reading file %s \n",argv[i]);
                 exit(0);
             }
+
             if (file_write == NULL)
              {
                 printf("Cannot open writing file \n");
                 exit(0);
             }
 
+            //Iterating each character and incrementing frequncy array
              ch = fgetc(fptr);
 
              while (ch != EOF)
              {
-                //printf("%s has been opened!",argv[i]);
-                //printf("%c \n", ch);
+        
                  if(ch>='a' && ch<='z')
                  {
                     freq[ch - 97]++;
@@ -49,14 +53,18 @@ int main(int n, char** argv)
 
                  ch = fgetc(fptr);
              }
+
+             //Printing the frequency values into the new folder
              int j;
+             fprintf (file_write, "FREQUENCIES FOR FILE %s: \n",argv[i]);
              for(j=0;j<26;j++){
                 fprintf (file_write, "Frequency of %c=%d \n",65+j,freq[j]);
              }
+
+             //closing input and output files
              fclose(fptr);
+             fclose(file_write);
 
-
-           
             printf("[son] pid %d from [parent] pid %d\n",getpid(),getppid()); 
             exit(0); 
         } 
